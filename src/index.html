@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>On Demand</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #141414;
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 50px;
+        }
+
+        h1 {
+            color: #E50914;
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            text-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+        }
+
+        p.subtitle { color: #a3a3a3; font-size: 1.1rem; margin-bottom: 40px; }
+
+        .btn-cargar {
+            background-color: #E50914;
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .btn-cargar:hover { background-color: #f40612; transform: scale(1.05); }
+
+        .grid-container { width: 90%; max-width: 1200px; display: flex; justify-content: center; }
+        .grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; }
+
+        .card {
+            background-color: #181818;
+            width: 280px;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover { transform: scale(1.05); z-index: 10; border-color: #E50914; box-shadow: 0 0 15px rgba(229,9,20,0.2); }
+
+        /* Simulación de Poster de Película */
+        .poster {
+            height: 160px;
+            background: linear-gradient(45deg, #000, #222);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .card-info { padding: 15px; flex-grow: 1; }
+        .card-title { font-weight: bold; margin-bottom: 5px; font-size: 1.1rem; }
+        .card-desc { color: #666; font-size: 0.8rem; }
+
+        .btn-ver {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #333;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .btn-ver:hover { background: #E50914; }
+
+        #mensaje { margin-top: 30px; color: #666; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<h1 onclick="window.location.reload()">ON DEMAND</h1>
+<p class="subtitle">Películas y Series</p>
+
+<button class="btn-cargar" onclick="cargarPeliculas()">▶ Cargar Catálogo</button>
+
+<div class="grid-container">
+    <div id="videogrid" class="grid"></div>
+</div>
+
+<p id="mensaje"></p>
+
+<script>
+    async function cargarPeliculas() {
+        const grid = document.getElementById('videogrid');
+        const mensaje = document.getElementById('mensaje');
+
+        mensaje.innerText = "Conectando con AWS S3...";
+        mensaje.style.color = "#E50914";
+
+        try {
+            const respuesta = await fetch('/list');
+            const datos = await respuesta.json();
+
+            grid.innerHTML = "";
+            mensaje.innerText = "";
+
+            if (!datos.videos || datos.videos.length === 0) {
+                mensaje.innerText = "No hay títulos disponibles en el bucket.";
+                mensaje.style.color = "#888";
+                return;
+            }
+
+            datos.videos.forEach(nombre => {
+                // Limpiamos el nombre para que se vea bien (quita .txt y guiones)
+                const titulo = nombre.replace('.txt', '').replace(/_/g, ' ');
+
+                grid.innerHTML += `
+                        <div class="card">
+                            <div class="poster">🎬</div>
+                            <div class="card-info">
+                                <div class="card-title">${titulo}</div>
+                                <div class="card-desc">Disponible en HD</div>
+                            </div>
+                            <a href="/ver/${nombre}" target="_blank" class="btn-ver">▶ VER AHORA</a>
+                        </div>
+                    `;
+            });
+
+        } catch (error) {
+            mensaje.innerText = "Error: No se puede conectar al catálogo.";
+            mensaje.style.color = "orange";
+        }
+    }
+
+    // Cargar al inicio
+    window.onload = cargarPeliculas;
+</script>
+</body>
+</html>
