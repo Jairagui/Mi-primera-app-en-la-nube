@@ -27,20 +27,7 @@ El proyecto integra dos servicios principales de Amazon Web Services:
 - SDK de Nube: Boto3
 - Servidor: Uvicorn
 
-## Instalación y Ejecución
 
-1. Clonar el repositorio:
-   git clone https://github.com/tu-usuario/demand.git
-
-2. Crear y activar entorno virtual:
-   python3 -m venv venv
-   source venv/bin/activate
-
-3. Instalar dependencias:
-   pip install fastapi uvicorn boto3
-
-4. Ejecutar el servidor:
-   python main.py
 
 ## Autor
 Jair Ernesto Aguilar Limón
